@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1,
+    user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#fff">
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data:">
+  <title>Praktik 1</title>
+  <link rel="stylesheet" href="core/framework7-bundle.min.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="apple-touch-icon" href="img/f7-icon-square.png">
+  <link rel="icon" href="img/f7-icon.png">
+  <link rel="stylesheet" href="css/custom.css">
+</head>
+
+<body>
+  <div id="app">
+    <div class="view view-main view-init safe-areas" data-master-detail-breakpoint="768" data-url="/"></div>
+  </div>
+  <script src="core/framework7-bundle.min.js"></script>
+  <script src="js/routes.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="cordova.js"></script>
+  <script>
+    let db;
+    function tombolaktif(id) {
+      $(".tbl").removeClass("button-active");
+      $("#" + id).addClass("button-active");
+      jenissuhu = id;
+    }
+    function hitungsuhu() {
+      var suhuinput = $('#txtnilai').val();
+      if (suhuinput == "") {
+        app.dialog.alert("Suhu masih kosong");
+        return;
+      }
+      if (jenissuhu == "") {
+        app.dialog.alert("Jenis Suhu masih kosong");
+        return;
+      }
+
+      if (jenissuhu == "btncelcius") {
+        let c2f = ((9 / 5) * suhuinput) + 32;
+        let c2k = suhuinput + 273;
+        let c2r = (4 / 5) * suhuinput;
+        $("#h1").html("Fahrenheit<br>" + c2f);
+        $("#h2").html("Kelvin<br>" + c2k);
+        $("#h3").html("Reamur<br>" + c2r);
+      } else if (jenissuhu == "btnkelvin") {
+        let k2c = suhuinput - 273.15;
+        let k2r = (4 / 5) * (suhuinput - 273);
+        let k2f = (suhuinput * (9 / 5)) - 459.67;
+        $("#h1").html("Fahrenheit<br>" + k2f);
+        $("#h2").html("Celcius<br>" + k2c);
+        $("#h3").html("Reamur<br>" + k2r);
+      } else if (jenissuhu == "btnreamur") {
+        let r2c = suhuinput / 0.8;
+        let r2k = (suhuinput / 0.8) + 273.15;
+        let r2f = (suhuinput * 2.25) + 32;
+        $("#h1").html("Fahrenheit<br>" + r2f);
+        $("#h2").html("Kelvin<br>" + r2k);
+        $("#h3").html("Celcius<br>" + r2c);
+      } else if (jenissuhu == "btnfahrenheit") {
+        let f2c = (suhuinput - 32) * (5 / 9);
+        let f2k = (suhuinput + 459.67);
+        let f2r = (4 / 9) * (suhuinput - 32);
+        $("#h1").html("Celcius<br>" + f2c);
+        $("#h2").html("Kelvin<br>" + f2k);
+        $("#h3").html("Reamur<br>" + f2r);
+      } else {
+        app.dialog.alert("Error");
+        return;
+      }
+    }
+    function resetsuhu() {
+      $("#txtnilai").val("");
+      $("#h1").html("");
+      $("#h2").html("");
+      $("#h3").html("");
+      $(".tbl").removeClass("button-active");
+    }
+
+    function senter() {
+      window.plugins.flashlight.available(function (ada) {
+        if (ada) {
+          if (window.plugins.flashlight.isSwitchedOn()) {
+            window.plugins.flashlight.switchOff();
+            $("#btnsenter").html("lightbulb");
+          } else {
+            window.plugins.flashlight.switchOn();
+            $("#btnsenter").html("lightbulb_slash");
+          }
+        } else {
+          app.dialog.alert("HP Jadul", "Error");
+        }
+      })
+    }
+
+    function scan() {
+      cordova.plugins.barcodeScanner.scan(
+        function (result) {
+          app.dialog.alert(result.text, "Hasil");
+        },
+        function (error) {
+          console.log("Scanning failed: " + error);
+        },
+        {
+          prompt: "Place a barcode inside the scan area",
+          resultDisplayDuration: 500,
+          formats: "all",
+          orientation: "portrait",
+        }
+      );
+    }
+
+    function fingerprint() {
+      Fingerprint.isAvailable(fingerAda, fingerTidakAda);
+    }
+    
+    function fingerAda(result) {
+      Fingerprint.show(
+        { description: "Silahkan Tempel Sidik Jari" },
+        function () {
+          app.dialog.alert("Fingerprint Terdeteksi Auth Sukses", "Berhasil");
+        },
+        function () {
+          app.dialog.alert("Fingerprint Tidak Tersedia", "Gagal");
+        }
+      );
+    }
+    konfigurasi();
+      function konfigurasi(){
+        db = openDatabase("dbsiakad","1.0", "database buat belajar", 3*1024*1024);
+        db.transaction(function(tx){
+          tx.executeSql("CREATE TABLE IF NOT EXISTS biodata (id VARCHAR(10), nama VARCHAR(50), tgl_lahir DATE, PRIMARY KEY(id));");
+        })
+      }
+
+
+  </script>
+</body>
+
+</html>
